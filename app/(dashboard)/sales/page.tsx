@@ -1,8 +1,16 @@
-export default function SalesPage() {
+import { listSales } from '@/lib/actions/sales'
+import { SalesTable } from '@/components/sales/sales-table'
+
+export default async function SalesPage() {
+  const { data: sales } = await listSales()
+
   return (
-    <div>
-      <h1 className="text-2xl font-semibold">Sales</h1>
-      <p className="text-muted-foreground mt-2">Coming in Phase 4</p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold">Sales</h1>
+        <p className="text-sm text-muted-foreground mt-1">Sales history</p>
+      </div>
+      <SalesTable data={sales} />
     </div>
   )
 }
