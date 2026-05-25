@@ -135,6 +135,9 @@ Four roles on `profiles.role`: `owner`, `manager`, `pharmacist`, `cashier`. Perm
 ## How to work with me (Claude)
 
 - Build **one module end-to-end** before starting the next. Migration → RLS → types → validators → actions → pages → components.
+- **Implement step by step.** Break every feature into small, discrete steps. Complete and confirm each step before moving to the next — never jump ahead or batch unrelated changes together.
+- **Test run until correct.** After implementing any step, run the dev server (or relevant test) and verify the feature works end-to-end. Do not mark a step done until it passes. If it fails, fix it before proceeding.
+- **Playwright for functional testing.** Every feature must have a Playwright e2e test covering the happy path and key edge cases. Run `npx playwright test` after implementation — all tests must pass before a feature is considered done. Tests live in `e2e/` at the project root.
 - When I write code that mutates the DB schema, ask the user to run `supabase gen types` before continuing so I have fresh types.
 - Don't ask "should I add tests?" for trivial UI — do ask, and write them, for: sale checkout (stock decrement, atomicity), RLS tenant isolation, CSV import edge cases.
 - Read every file I create before committing.
