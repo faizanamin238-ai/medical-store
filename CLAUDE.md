@@ -142,6 +142,7 @@ Four roles on `profiles.role`: `owner`, `manager`, `pharmacist`, `cashier`. Perm
 - Don't ask "should I add tests?" for trivial UI — do ask, and write them, for: sale checkout (stock decrement, atomicity), RLS tenant isolation, CSV import edge cases.
 - Read every file I create before committing.
 - Commit working code before starting the next change. One feature = one branch = one PR.
+- **Commit and push on phase completion.** When a phase is fully done and all tests pass, commit all changes with a clear phase-scoped message and push to `origin main`.
 - For UI work: run the dev server and click through the feature before reporting done.
 
 ---
