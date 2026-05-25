@@ -18,6 +18,7 @@ import { Trash2, ShoppingCart, Pause, Play, CheckCircle } from 'lucide-react'
 import { checkoutSale } from '@/lib/actions/sales'
 import type { MedicineWithCategory } from '@/lib/actions/medicines'
 import type { CartItem } from '@/lib/validators/sales'
+import type { Tables } from '@/types/database.types'
 
 interface CartLine extends CartItem {
   name: string
@@ -85,12 +86,14 @@ const HOLD_KEY = 'pos_held_cart'
 
 interface POSTerminalProps {
   medicines: MedicineWithCategory[]
+  customers: Tables<'customers'>[]
 }
 
-export function POSTerminal({ medicines }: POSTerminalProps) {
+export function POSTerminal({ medicines, customers }: POSTerminalProps) {
   const router = useRouter()
   const [cart, dispatch] = useReducer(cartReducer, [])
   const [search, setSearch] = useState('')
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | undefined>(undefined)
   const [discount, setDiscount] = useState(0)
   const [tax, setTax] = useState(0)
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'bank_transfer' | 'other'>('cash')
@@ -143,6 +146,7 @@ export function POSTerminal({ medicines }: POSTerminalProps) {
   const handleCheckout = async () => {
     setLoading(true)
     const result = await checkoutSale({
+      customer_id: selectedCustomerId,
       payment_method: paymentMethod,
       discount,
       tax,
@@ -214,6 +218,21 @@ export function POSTerminal({ medicines }: POSTerminalProps) {
 
       {/* Right: cart */}
       <div className="flex flex-col flex-1 rounded-lg border overflow-hidden">
+
+        {/* Customer selector */}
+        <div className="px-4 py-2 border-b bg-muted/20">
+          <Select onValueChange={(v: string | null) => setSelectedCustomerId(v || undefined)}>
+            <SelectTrigger className="h-8 text-sm">
+              <SelectValue placeholder="Walk-in customer (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Walk-in</SelectItem>
+              {customers.map((c) => (
+                <SelectItem key={c.id} value={c.id}>{c.name}{c.phone ? ` — ${c.phone}` : ''}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Cart header */}
         <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/40">
