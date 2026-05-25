@@ -84,6 +84,7 @@ export type Database = {
           reorder_level: number
           prescription_required: boolean
           unit: string
+          deleted_at: string | null
           created_at: string
           updated_at: string
         }
@@ -103,6 +104,7 @@ export type Database = {
           reorder_level?: number
           prescription_required?: boolean
           unit?: string
+          deleted_at?: string | null
           created_at?: string
           updated_at?: string
         }
