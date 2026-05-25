@@ -12,6 +12,7 @@ import {
   BarChart3,
   Settings,
   ClipboardList,
+  UserCog,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -24,6 +25,7 @@ const navItems = [
   { label: 'Suppliers', href: '/suppliers', icon: ClipboardList },
   { label: 'Customers', href: '/customers', icon: Users },
   { label: 'Reports', href: '/reports', icon: BarChart3 },
+  { label: 'Team', href: '/team', icon: UserCog },
   { label: 'Settings', href: '/settings', icon: Settings },
 ]
 
