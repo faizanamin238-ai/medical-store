@@ -161,4 +161,12 @@ Never commit `.env.local`. Vercel envs are set per-environment in the dashboard.
 
 ## Phase awareness
 
-The project follows the 10 phases in [medical-store-saas-plan.md](medical-store-saas-plan.md#9-development-phases-milestones). When asked to build something, sanity-check it against the current phase — don't pull Phase 6 (reports) work into Phase 2 (medicine CRUD).
+The project follows the 10 phases in [medical-store-saas-plan.md](medical-store-saas-plan.md#9-development-phases-milestones). When asked to build something, sanity-check it against the current phase.
+
+Phase completion status and gating rule: @.claude/rules/phase-status.md
+
+---
+
+## Known gotchas
+
+Patterns and fixes discovered during implementation (base-ui DialogTrigger, Zod v4 enum, RPC type casting, admin client, SECURITY DEFINER RPCs, Recharts formatter, CSV export, team invite flow): @.claude/rules/gotchas.md
