@@ -1,8 +1,5 @@
 import Link from 'next/link'
-import { loginAction } from '@/lib/actions/auth'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { LoginForm } from '@/components/auth/login-form'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default async function LoginPage({
@@ -11,7 +8,7 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string }>
 }) {
   const { error } = await searchParams
-  const isDemoMode = Boolean(process.env.DEMO_USER_EMAIL && process.env.DEMO_USER_PASSWORD)
+  const demoAvailable = Boolean(process.env.DEMO_USER_EMAIL && process.env.DEMO_USER_PASSWORD)
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
@@ -19,48 +16,14 @@ export default async function LoginPage({
         <CardHeader>
           <CardTitle className="text-2xl">Sign in</CardTitle>
           <CardDescription>
-            {isDemoMode
-              ? 'Demo mode — enter any email and password to sign in'
+            {demoAvailable
+              ? 'Use real credentials, or switch to Demo mode to explore the app instantly.'
               : 'Enter your credentials to access your pharmacy'}
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          {isDemoMode && (
-            <div className="mb-4 rounded-md bg-blue-50 border border-blue-200 p-3 text-sm text-blue-700">
-              Demo mode is active. Any credentials will sign you in as the demo account.
-            </div>
-          )}
-          {error && (
-            <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
-              {decodeURIComponent(error)}
-            </div>
-          )}
-
-          <form action={loginAction} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="you@example.com" required />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" placeholder="Your password" required />
-            </div>
-
-            <Button type="submit" className="w-full">
-              Sign in
-            </Button>
-          </form>
-
-          <div className="mt-4 text-center">
-            <Link
-              href="/reset-password"
-              className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </Link>
-          </div>
+          <LoginForm error={error} demoAvailable={demoAvailable} />
         </CardContent>
 
         <CardFooter className="justify-center text-sm text-muted-foreground">

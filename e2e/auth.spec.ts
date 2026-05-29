@@ -62,4 +62,42 @@ test.describe('Auth pages', () => {
     await page.getByRole('link', { name: /sign in/i }).click()
     await expect(page).toHaveURL(/\/login/)
   })
+
+  test('real/demo toggle is visible when demo is configured', async ({ page }) => {
+    test.skip(!process.env.DEMO_USER_EMAIL || !process.env.DEMO_USER_PASSWORD,
+      'Demo env vars not set')
+    await page.goto('/login')
+    await expect(page.getByRole('tab', { name: /real login/i })).toBeVisible()
+    await expect(page.getByRole('tab', { name: /demo mode/i })).toBeVisible()
+  })
+
+  test('switching to demo mode hides credential fields and shows demo button', async ({ page }) => {
+    test.skip(!process.env.DEMO_USER_EMAIL || !process.env.DEMO_USER_PASSWORD,
+      'Demo env vars not set')
+    await page.goto('/login')
+    await expect(page.getByLabel(/email/i)).toBeVisible()
+    await page.getByRole('tab', { name: /demo mode/i }).click()
+    await expect(page.getByLabel(/email/i)).not.toBeVisible()
+    await expect(page.getByLabel(/password/i)).not.toBeVisible()
+    await expect(page.getByRole('button', { name: /continue as demo user/i })).toBeVisible()
+  })
+
+  test('switching back to real mode restores credential fields', async ({ page }) => {
+    test.skip(!process.env.DEMO_USER_EMAIL || !process.env.DEMO_USER_PASSWORD,
+      'Demo env vars not set')
+    await page.goto('/login')
+    await page.getByRole('tab', { name: /demo mode/i }).click()
+    await page.getByRole('tab', { name: /real login/i }).click()
+    await expect(page.getByLabel(/email/i)).toBeVisible()
+    await expect(page.getByLabel(/password/i)).toBeVisible()
+  })
+
+  test('demo mode signs in and redirects to dashboard', async ({ page }) => {
+    test.skip(!process.env.DEMO_USER_EMAIL || !process.env.DEMO_USER_PASSWORD,
+      'Demo env vars not set')
+    await page.goto('/login')
+    await page.getByRole('tab', { name: /demo mode/i }).click()
+    await page.getByRole('button', { name: /continue as demo user/i }).click()
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 })
+  })
 })

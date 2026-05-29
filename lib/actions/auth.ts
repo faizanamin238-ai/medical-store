@@ -51,20 +51,35 @@ export async function loginAction(formData: FormData) {
 
   const supabase = await createClient()
 
-  // Demo bypass: if DEMO_USER_EMAIL + DEMO_USER_PASSWORD env vars are set,
-  // any typed credentials are ignored and the demo account is used instead.
-  const demoEmail = process.env.DEMO_USER_EMAIL
-  const demoPassword = process.env.DEMO_USER_PASSWORD
-  const signInEmail = demoEmail && demoPassword ? demoEmail : parsed.data.email
-  const signInPassword = demoEmail && demoPassword ? demoPassword : parsed.data.password
-
   const { error } = await supabase.auth.signInWithPassword({
-    email: signInEmail,
-    password: signInPassword,
+    email: parsed.data.email,
+    password: parsed.data.password,
   })
 
   if (error) {
     redirect(`/login?error=${encodeURIComponent(error.message)}`)
+  }
+
+  redirect('/dashboard')
+}
+
+export async function demoLoginAction() {
+  const demoEmail = process.env.DEMO_USER_EMAIL
+  const demoPassword = process.env.DEMO_USER_PASSWORD
+
+  if (!demoEmail || !demoPassword) {
+    redirect(`/login?error=${encodeURIComponent('Demo mode is not configured on the server.')}`)
+  }
+
+  const supabase = await createClient()
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: demoEmail,
+    password: demoPassword,
+  })
+
+  if (error) {
+    redirect(`/login?error=${encodeURIComponent(`Demo login failed: ${error.message}`)}`)
   }
 
   redirect('/dashboard')
