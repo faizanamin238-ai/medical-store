@@ -15,10 +15,12 @@ import {
   ClipboardList,
   UserCog,
   Menu,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
+import { logoutAction } from '@/lib/actions/auth'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -45,6 +47,7 @@ function NavLinks({ pharmacyName, onNavigate }: { pharmacyName: string; onNaviga
       <div className="flex h-14 items-center border-b px-4">
         <span className="truncate text-sm font-semibold">{pharmacyName}</span>
       </div>
+
       <nav className="flex-1 overflow-y-auto p-2">
         <ul className="space-y-1">
           {navItems.map(({ label, href, icon: Icon }) => {
@@ -69,6 +72,19 @@ function NavLinks({ pharmacyName, onNavigate }: { pharmacyName: string; onNaviga
           })}
         </ul>
       </nav>
+
+      {/* Sign-out at the bottom of the sidebar */}
+      <div className="border-t p-2">
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            Sign out
+          </button>
+        </form>
+      </div>
     </aside>
   )
 }
@@ -83,7 +99,7 @@ export function NavSidebar({ pharmacyName }: NavSidebarProps) {
         <NavLinks pharmacyName={pharmacyName} />
       </div>
 
-      {/* Mobile hamburger button — rendered inside the header via a portal-free approach */}
+      {/* Mobile hamburger button */}
       <div className="lg:hidden fixed top-0 left-0 z-30 flex h-14 items-center px-3">
         <Button
           variant="ghost"
