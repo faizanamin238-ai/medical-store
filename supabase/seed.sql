@@ -40,7 +40,7 @@ begin
   values
     (gen_random_uuid(), demo_pharmacy_id, 'MedLine Distributors', 'Ali Hassan', '+92-300-1234567', 'ali@medline.pk', 'Karachi, Pakistan'),
     (gen_random_uuid(), demo_pharmacy_id, 'PharmaPak Wholesale',  'Sara Khan',  '+92-321-9876543', 'sara@pharmapak.pk', 'Lahore, Pakistan')
-  returning id into sup1;
+  ;
 
   select id into sup1 from public.suppliers where pharmacy_id = demo_pharmacy_id and name = 'MedLine Distributors';
   select id into sup2 from public.suppliers where pharmacy_id = demo_pharmacy_id and name = 'PharmaPak Wholesale';
@@ -82,7 +82,7 @@ begin
   values
     (gen_random_uuid(), demo_pharmacy_id, cust1, 570, 0, 0, 570, 'cash',  null, now() - interval '2 days'),
     (gen_random_uuid(), demo_pharmacy_id, cust2, 800, 50, 0, 750, 'card', 'Returning patient discount', now() - interval '1 day')
-  returning id into sale1;
+  ;
 
   select id into sale1 from public.sales where pharmacy_id = demo_pharmacy_id and total = 570;
   select id into sale2 from public.sales where pharmacy_id = demo_pharmacy_id and total = 750;
