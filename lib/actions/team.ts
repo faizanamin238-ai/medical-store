@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { InviteSchema, UpdateRoleSchema } from '@/lib/validators/team'
+import { logAudit } from '@/lib/audit'
 
 export type TeamMember = {
   id: string
@@ -95,6 +96,7 @@ export async function inviteTeamMember(raw: unknown) {
     return { error: inviteError.message }
   }
 
+  await logAudit({ action: 'invite', tableName: 'team_member', changes: { email, role } })
   revalidatePath('/team')
   return { success: true }
 }
@@ -128,6 +130,7 @@ export async function updateMemberRole(raw: unknown) {
 
   if (error) return { error: error.message }
 
+  await logAudit({ action: 'role_change', tableName: 'team_member', recordId: parsed.data.profile_id, changes: { role: parsed.data.role } })
   revalidatePath('/team')
   return { success: true }
 }
@@ -141,6 +144,7 @@ export async function removeMember(profileId: string) {
 
   if (error) return { error: error.message }
 
+  await logAudit({ action: 'delete', tableName: 'team_member', recordId: profileId })
   revalidatePath('/team')
   return { success: true }
 }

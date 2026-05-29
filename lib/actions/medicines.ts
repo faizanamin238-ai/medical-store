@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { MedicineSchema, UpdateMedicineSchema } from '@/lib/validators/medicines'
+import { logAudit } from '@/lib/audit'
 import type { Tables } from '@/types/database.types'
 
 export type MedicineWithCategory = Tables<'medicines'> & {
@@ -38,9 +39,10 @@ export async function createMedicine(data: unknown) {
     pharmacy_id: pharmacyId,
   }
 
-  const { error } = await supabase.from('medicines').insert(payload as never)
+  const { data: inserted, error } = await supabase.from('medicines').insert(payload as never).select('id').single()
   if (error) return { error: error.message }
 
+  await logAudit({ action: 'create', tableName: 'medicine', recordId: inserted?.id, changes: { name: (parsed.data as Record<string, unknown>).name } })
   revalidatePath('/medicines')
   return { success: true }
 }
@@ -63,6 +65,7 @@ export async function updateMedicine(id: string, data: unknown) {
 
   if (error) return { error: error.message }
 
+  await logAudit({ action: 'update', tableName: 'medicine', recordId: id })
   revalidatePath('/medicines')
   revalidatePath(`/medicines/${id}`)
   return { success: true }
@@ -80,6 +83,7 @@ export async function deleteMedicine(id: string) {
 
   if (error) return { error: error.message }
 
+  await logAudit({ action: 'delete', tableName: 'medicine', recordId: id })
   revalidatePath('/medicines')
   return { success: true }
 }

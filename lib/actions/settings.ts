@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { SettingsSchema } from '@/lib/validators/settings'
+import { logAudit } from '@/lib/audit'
 import type { Database } from '@/types/database.types'
 
 type Pharmacy = Database['public']['Tables']['pharmacies']['Row']
@@ -45,6 +46,7 @@ export async function updatePharmacySettings(raw: unknown): Promise<{ error?: st
     .eq('id', pharmacyId)
 
   if (error) return { error: error.message }
+  await logAudit({ action: 'update', tableName: 'settings', changes: { name: parsed.data.name, currency: parsed.data.currency, tax_rate: parsed.data.tax_rate } })
   revalidatePath('/settings')
   return {}
 }
