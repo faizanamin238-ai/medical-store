@@ -1,7 +1,6 @@
 'use client'
 
 import { useRef, useState, useTransition } from 'react'
-import Image from 'next/image'
 import { uploadLogo } from '@/lib/actions/settings'
 import { Button } from '@/components/ui/button'
 import { Upload } from 'lucide-react'
@@ -39,7 +38,10 @@ export function LogoUpload({ currentUrl, pharmacyName }: LogoUploadProps) {
     <div className="flex items-center gap-4">
       <div className="h-16 w-16 rounded-lg border bg-muted flex items-center justify-center overflow-hidden shrink-0">
         {preview ? (
-          <Image src={preview} alt={pharmacyName} width={64} height={64} className="object-contain" />
+          // Use plain img — src can be a Supabase storage URL or blob: URL;
+          // next/image would throw without remotePatterns for external domains.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={preview} alt={pharmacyName} width={64} height={64} className="h-full w-full object-contain" />
         ) : (
           <span className="text-xl font-semibold text-muted-foreground">
             {pharmacyName.charAt(0).toUpperCase()}

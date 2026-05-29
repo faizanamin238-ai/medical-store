@@ -14,11 +14,24 @@ export async function exportAllData(): Promise<{
   const supabase = await createClient()
 
   const [medicines, sales, customers, suppliers, purchases] = await Promise.all([
-    supabase.from('medicines').select('name,generic_name,category_id,stock_quantity,sale_price,purchase_price,unit,expiry_date,batch_number').is('deleted_at', null),
-    supabase.from('sales').select('created_at,total_amount,discount_amount,payment_method'),
-    supabase.from('customers').select('name,phone,email,address,created_at'),
-    supabase.from('suppliers').select('name,contact_person,phone,email,address'),
-    supabase.from('purchases').select('created_at,total_amount,status'),
+    supabase
+      .from('medicines')
+      .select('name,generic_name,category_id,stock_quantity,sale_price,purchase_price,unit,expiry_date,batch_number')
+      .is('deleted_at', null),
+    supabase
+      .from('sales')
+      .select('created_at,total,discount,tax,payment_method,sale_date'),
+    supabase
+      .from('customers')
+      .select('name,phone,address,created_at')
+      .is('deleted_at', null),
+    supabase
+      .from('suppliers')
+      .select('name,contact_person,phone,email,address')
+      .is('deleted_at', null),
+    supabase
+      .from('purchases')
+      .select('created_at,total_amount,payment_status,invoice_number,invoice_date'),
   ])
 
   if (medicines.error) return { error: medicines.error.message }
