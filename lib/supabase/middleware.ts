@@ -31,12 +31,20 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const isAuthRoute = pathname.startsWith('/(auth)') ||
+  const isPublicRoute =
+    pathname === '/login' ||
+    pathname === '/signup' ||
+    pathname === '/reset-password' ||
+    pathname === '/pricing' ||
+    pathname === '/privacy' ||
+    pathname === '/terms'
+
+  const isAuthRoute =
     pathname === '/login' ||
     pathname === '/signup' ||
     pathname === '/reset-password'
 
-  if (!user && !isAuthRoute && pathname !== '/') {
+  if (!user && !isPublicRoute && pathname !== '/') {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

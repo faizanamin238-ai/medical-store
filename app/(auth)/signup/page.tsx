@@ -17,7 +17,7 @@ export default async function SignupPage({
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Create your account</CardTitle>
-          <CardDescription>Set up your pharmacy on MedStore</CardDescription>
+          <CardDescription>Set up your pharmacy on RxManager</CardDescription>
         </CardHeader>
 
         <CardContent>
