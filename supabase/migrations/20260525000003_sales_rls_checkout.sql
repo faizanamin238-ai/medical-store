@@ -133,14 +133,15 @@ begin
     v_qty := (v_item->>'quantity')::integer;
 
     insert into public.sale_items (
-      sale_id, medicine_id, quantity, unit_price, discount, total
+      sale_id, medicine_id, quantity, unit_price, discount, total, pharmacy_id
     ) values (
       v_sale_id,
       (v_item->>'medicine_id')::uuid,
       v_qty,
       (v_item->>'unit_price')::numeric,
       coalesce((v_item->>'discount')::numeric, 0),
-      (v_item->>'total')::numeric
+      (v_item->>'total')::numeric,
+      v_pharmacy_id
     );
 
     update public.medicines

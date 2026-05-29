@@ -149,13 +149,14 @@ begin
   -- insert items and update stock
   for v_item in select * from jsonb_array_elements(p_items) loop
     insert into public.purchase_items (
-      purchase_id, medicine_id, quantity, unit_cost, total_cost
+      purchase_id, medicine_id, quantity, unit_cost, total_cost, pharmacy_id
     ) values (
       v_purchase_id,
       (v_item->>'medicine_id')::uuid,
       (v_item->>'quantity')::integer,
       (v_item->>'unit_cost')::numeric,
-      (v_item->>'total_cost')::numeric
+      (v_item->>'total_cost')::numeric,
+      v_pharmacy_id
     );
 
     -- increment medicine stock atomically
