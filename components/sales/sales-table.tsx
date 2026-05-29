@@ -43,7 +43,7 @@ export function SalesTable({ data }: { data: SaleRow[] }) {
           Date <ArrowUpDown className="h-3 w-3" />
         </button>
       ),
-      cell: ({ row }) => new Date(row.original.sale_date).toLocaleString(),
+      cell: ({ row }) => row.original.sale_date.slice(0, 16).replace('T', ' '),
     },
     {
       accessorKey: 'invoice_number',

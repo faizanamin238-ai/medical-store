@@ -11,16 +11,26 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string }>
 }) {
   const { error } = await searchParams
+  const isDemoMode = Boolean(process.env.DEMO_USER_EMAIL && process.env.DEMO_USER_PASSWORD)
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Sign in</CardTitle>
-          <CardDescription>Enter your credentials to access your pharmacy</CardDescription>
+          <CardDescription>
+            {isDemoMode
+              ? 'Demo mode — enter any email and password to sign in'
+              : 'Enter your credentials to access your pharmacy'}
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
+          {isDemoMode && (
+            <div className="mb-4 rounded-md bg-blue-50 border border-blue-200 p-3 text-sm text-blue-700">
+              Demo mode is active. Any credentials will sign you in as the demo account.
+            </div>
+          )}
           {error && (
             <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
               {decodeURIComponent(error)}

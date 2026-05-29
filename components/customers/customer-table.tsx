@@ -46,7 +46,7 @@ export function CustomerTable({ data }: { data: CustomerRow[] }) {
     {
       accessorKey: 'created_at',
       header: 'Since',
-      cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString(),
+      cell: ({ row }) => row.original.created_at.slice(0, 10),
     },
     {
       id: 'actions',

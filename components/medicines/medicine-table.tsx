@@ -36,7 +36,8 @@ function stockBadge(qty: number, reorder: number) {
 
 function expiryBadge(date: string | null) {
   if (!date) return null
-  const days = Math.ceil((new Date(date).getTime() - Date.now()) / 86400000)
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const days = Math.ceil((new Date(date).getTime() - today.getTime()) / 86400000)
   if (days < 0) return <Badge variant="destructive">Expired</Badge>
   if (days <= 30) return <Badge variant="outline" className="border-red-400 text-red-600">{days}d left</Badge>
   if (days <= 90) return <Badge variant="outline" className="border-orange-400 text-orange-600">{days}d left</Badge>

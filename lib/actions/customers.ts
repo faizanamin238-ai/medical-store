@@ -64,7 +64,10 @@ export async function deleteCustomer(id: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
 
-  const { error } = await supabase.from('customers').delete().eq('id', id)
+  const { error } = await supabase
+    .from('customers')
+    .update({ deleted_at: new Date().toISOString() } as never)
+    .eq('id', id)
   if (error) return { error: error.message }
 
   revalidatePath('/customers')
@@ -76,6 +79,7 @@ export async function listCustomers(): Promise<{ data: Tables<'customers'>[]; er
   const { data, error } = await supabase
     .from('customers')
     .select('*')
+    .is('deleted_at', null)
     .order('name')
 
   if (error) return { data: [], error: error.message }
@@ -88,6 +92,7 @@ export async function getCustomer(id: string): Promise<{ data: Tables<'customers
     .from('customers')
     .select('*')
     .eq('id', id)
+    .is('deleted_at', null)
     .single()
 
   if (error) return { data: null, error: error.message }

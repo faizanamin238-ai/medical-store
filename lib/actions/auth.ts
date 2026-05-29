@@ -49,10 +49,19 @@ export async function loginAction(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent(message)}`)
   }
 
-  const { email, password } = parsed.data
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  // Demo bypass: if DEMO_USER_EMAIL + DEMO_USER_PASSWORD env vars are set,
+  // any typed credentials are ignored and the demo account is used instead.
+  const demoEmail = process.env.DEMO_USER_EMAIL
+  const demoPassword = process.env.DEMO_USER_PASSWORD
+  const signInEmail = demoEmail && demoPassword ? demoEmail : parsed.data.email
+  const signInPassword = demoEmail && demoPassword ? demoPassword : parsed.data.password
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: signInEmail,
+    password: signInPassword,
+  })
 
   if (error) {
     redirect(`/login?error=${encodeURIComponent(error.message)}`)

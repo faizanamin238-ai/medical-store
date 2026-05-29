@@ -66,7 +66,10 @@ export async function deleteSupplier(id: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
 
-  const { error } = await supabase.from('suppliers').delete().eq('id', id)
+  const { error } = await supabase
+    .from('suppliers')
+    .update({ deleted_at: new Date().toISOString() } as never)
+    .eq('id', id)
   if (error) return { error: error.message }
 
   revalidatePath('/suppliers')
@@ -78,6 +81,7 @@ export async function listSuppliers(): Promise<{ data: Tables<'suppliers'>[]; er
   const { data, error } = await supabase
     .from('suppliers')
     .select('*')
+    .is('deleted_at', null)
     .order('name')
 
   if (error) return { data: [], error: error.message }
@@ -90,6 +94,7 @@ export async function getSupplier(id: string): Promise<{ data: Tables<'suppliers
     .from('suppliers')
     .select('*')
     .eq('id', id)
+    .is('deleted_at', null)
     .single()
 
   if (error) return { data: null, error: error.message }
