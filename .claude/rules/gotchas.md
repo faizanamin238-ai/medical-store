@@ -11,6 +11,13 @@ import { buttonVariants } from '@/components/ui/button'
 </DialogTrigger>
 ```
 
+## Zod v4 — `issues` not `errors`
+`ZodError` in Zod v4 uses `.issues` not `.errors`:
+```ts
+// Wrong: parsed.error.errors[0].message
+parsed.error.issues[0].message
+```
+
 ## Zod v4 enum — no `required_error`
 `z.enum([...])` does not accept `required_error` in Zod v4. Omit the options object:
 ```ts

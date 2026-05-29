@@ -41,7 +41,7 @@ export default async function DashboardLayout({
       <NavSidebar pharmacyName={pharmacyName} />
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 items-center justify-end border-b px-4">
+        <header className="flex h-14 items-center justify-end border-b px-4 lg:px-4 pl-14 lg:pl-4">
           <UserMenu fullName={fullName} role={role} email={user.email ?? ''} />
         </header>
 

@@ -11,7 +11,7 @@
 | 5 | Customers & Prescriptions | Done | `73dcac4` |
 | 6 | Reports | Done | `ba378a9` |
 | 7 | Team Management | Done | `0177171` |
-| 8 | Settings & Polish | Pending | — |
+| 8 | Settings & Polish | Done | — |
 | 9 | Testing & Hardening | Pending | — |
 | 10 | Launch Prep | Pending | — |
 

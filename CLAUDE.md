@@ -159,6 +159,17 @@ Never commit `.env.local`. Vercel envs are set per-environment in the dashboard.
 
 ---
 
+## Deployment
+
+- **Platform:** Vercel (Hobby plan, team `faizanamin238-2323's projects`)
+- **Repo:** `github.com/faizanamin238-ai/medical-store` — `main` branch
+- **Auto-deploy:** every `git push` to `main` triggers a Vercel production deployment
+- **Auto-push:** `.git/hooks/post-commit` pushes to `origin` after every local commit
+- **Config:** `vercel.json` at project root (framework: nextjs, standard build/dev commands)
+- **Env vars** required on Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+
+---
+
 ## Phase awareness
 
 The project follows the 10 phases in [medical-store-saas-plan.md](medical-store-saas-plan.md#9-development-phases-milestones). When asked to build something, sanity-check it against the current phase.
