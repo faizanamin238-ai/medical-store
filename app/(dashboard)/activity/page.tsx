@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { listAuditLogs } from '@/lib/actions/audit'
 import { AuditLogTable } from '@/components/settings/audit-log-table'
+import { ExportButton } from '@/components/settings/export-button'
 
 export default async function ActivityPage() {
   const supabase = await createClient()
@@ -21,11 +22,14 @@ export default async function ActivityPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Activity</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Recent sensitive actions in your pharmacy. Filter by action or resource, and page through the history.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Activity</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Recent sensitive actions in your pharmacy. Filter by action or resource, and page through the history.
+          </p>
+        </div>
+        <ExportButton />
       </div>
 
       <AuditLogTable logs={logs} />

@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { NavSidebar } from '@/components/shared/nav-sidebar'
 import { UserMenu } from '@/components/shared/user-menu'
-import { SettingsExportSlot } from '@/components/settings/settings-export-slot'
 import type { Tables } from '@/types/database.types'
 
 export default async function DashboardLayout({
@@ -45,7 +44,6 @@ export default async function DashboardLayout({
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex h-14 items-center justify-end gap-3 border-b px-4 lg:px-4 pl-14 lg:pl-4">
-          <SettingsExportSlot />
           <UserMenu fullName={fullName} role={role} email={user.email ?? ''} />
         </header>
 
