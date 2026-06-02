@@ -1,5 +1,6 @@
 'use client'
 
+import { useTransition } from 'react'
 import { logoutAction } from '@/lib/actions/auth'
 import {
   DropdownMenu,
@@ -28,6 +29,8 @@ function initials(name: string) {
 }
 
 export function UserMenu({ fullName, role, email }: UserMenuProps) {
+  const [, startTransition] = useTransition()
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-2 rounded-md p-2 text-sm hover:bg-muted focus:outline-none">
@@ -46,16 +49,13 @@ export function UserMenu({ fullName, role, email }: UserMenuProps) {
           <p className="text-xs font-normal text-muted-foreground">{email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <form action={logoutAction}>
-          <DropdownMenuItem
-            render={<button type="submit" />}
-            className="w-full cursor-pointer"
-            closeOnClick={false}
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </DropdownMenuItem>
-        </form>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => startTransition(() => logoutAction())}
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
