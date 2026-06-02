@@ -91,3 +91,27 @@ export async function uploadLogo(formData: FormData): Promise<{ url?: string; er
   revalidatePath('/settings')
   return { url: publicUrl }
 }
+
+export async function removeLogo(): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const pharmacyId = await getPharmacyId()
+  if (!pharmacyId) return { error: 'Pharmacy not found' }
+
+  const admin = createAdminClient()
+  const { data: files } = await admin.storage
+    .from('pharmacy-logos')
+    .list(pharmacyId)
+  const paths = (files ?? []).map((f) => `${pharmacyId}/${f.name}`)
+  if (paths.length > 0) {
+    await admin.storage.from('pharmacy-logos').remove(paths)
+  }
+
+  const { error } = await supabase
+    .from('pharmacies')
+    .update({ logo_url: null })
+    .eq('id', pharmacyId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/settings')
+  return {}
+}

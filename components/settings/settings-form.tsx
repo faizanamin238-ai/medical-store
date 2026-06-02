@@ -50,7 +50,7 @@ export function SettingsForm({ pharmacy }: SettingsFormProps) {
   const [isPending, startTransition] = useTransition()
 
   function set(field: string, value: string) {
-    setForm(f => ({ ...f, [field]: value }))
+    setForm((f) => ({ ...f, [field]: value }))
     setMessage(null)
   }
 
@@ -68,51 +68,53 @@ export function SettingsForm({ pharmacy }: SettingsFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl">
+    <form onSubmit={handleSubmit} className="divide-y rounded-lg border bg-card">
+      <FormRow
+        title="Logo"
+        description="Shown on receipts and the sidebar."
+      >
+        <LogoUpload currentUrl={pharmacy.logo_url} pharmacyName={form.name} />
+      </FormRow>
 
-      {/* Logo */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Logo</h2>
-        <LogoUpload currentUrl={pharmacy.logo_url} pharmacyName={pharmacy.name} />
-      </section>
-
-      {/* Pharmacy Profile */}
-      <section className="space-y-4">
-        <h2 className="text-sm font-semibold">Pharmacy profile</h2>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="name">Pharmacy name</Label>
-          <Input id="name" value={form.name} onChange={e => set('name', e.target.value)} required />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <FormRow
+        title="Pharmacy profile"
+        description="Basic info that appears on receipts and customer-facing documents."
+      >
+        <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="phone">Phone</Label>
-            <Input id="phone" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+92 300 0000000" />
+            <Label htmlFor="name">Pharmacy name</Label>
+            <Input id="name" value={form.name} onChange={(e) => set('name', e.target.value)} required />
           </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="phone">Phone</Label>
+              <Input id="phone" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+92 300 0000000" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="gst_number">GST / Tax number</Label>
+              <Input id="gst_number" value={form.gst_number} onChange={(e) => set('gst_number', e.target.value)} placeholder="Optional" />
+            </div>
+          </div>
+
           <div className="space-y-1.5">
-            <Label htmlFor="gst_number">GST / Tax number</Label>
-            <Input id="gst_number" value={form.gst_number} onChange={e => set('gst_number', e.target.value)} placeholder="Optional" />
+            <Label htmlFor="address">Address</Label>
+            <Textarea id="address" value={form.address} onChange={(e) => set('address', e.target.value)} rows={2} placeholder="Street, City, Country" />
           </div>
         </div>
+      </FormRow>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="address">Address</Label>
-          <Textarea id="address" value={form.address} onChange={e => set('address', e.target.value)} rows={2} placeholder="Street, City, Country" />
-        </div>
-      </section>
-
-      {/* Financial */}
-      <section className="space-y-4">
-        <h2 className="text-sm font-semibold">Financial</h2>
-
+      <FormRow
+        title="Financial"
+        description="Currency, timezone and default tax rate. Applied across receipts, reports and POS."
+      >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
             <Label>Currency</Label>
             <Select value={form.currency} onValueChange={(v: string | null) => set('currency', v ?? '')}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {CURRENCIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                {CURRENCIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -122,7 +124,7 @@ export function SettingsForm({ pharmacy }: SettingsFormProps) {
             <Select value={form.timezone} onValueChange={(v: string | null) => set('timezone', v ?? '')}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {TIMEZONES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                {TIMEZONES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -136,39 +138,62 @@ export function SettingsForm({ pharmacy }: SettingsFormProps) {
               max="100"
               step="0.01"
               value={form.tax_rate}
-              onChange={e => set('tax_rate', e.target.value)}
+              onChange={(e) => set('tax_rate', e.target.value)}
             />
           </div>
         </div>
-      </section>
+      </FormRow>
 
-      {/* Receipt */}
-      <section className="space-y-4">
-        <h2 className="text-sm font-semibold">Receipt</h2>
+      <FormRow
+        title="Receipt"
+        description="Footer printed at the bottom of every receipt."
+      >
         <div className="space-y-1.5">
           <Label htmlFor="receipt_footer">Footer text</Label>
           <Textarea
             id="receipt_footer"
             value={form.receipt_footer}
-            onChange={e => set('receipt_footer', e.target.value)}
+            onChange={(e) => set('receipt_footer', e.target.value)}
             rows={2}
             placeholder="e.g. Thank you for your purchase! Returns within 7 days."
           />
-          <p className="text-xs text-muted-foreground">Printed at the bottom of every receipt.</p>
         </div>
-      </section>
+      </FormRow>
 
-      {message && (
-        <p className={`text-sm rounded-md px-3 py-2 ${
-          message.type === 'error' ? 'bg-destructive/10 text-destructive' : 'bg-green-50 text-green-800'
-        }`}>
-          {message.text}
-        </p>
-      )}
-
-      <Button type="submit" disabled={isPending}>
-        {isPending ? 'Saving…' : 'Save settings'}
-      </Button>
+      <div className="flex flex-wrap items-center justify-end gap-3 bg-muted/30 p-4 sm:p-6">
+        {message && (
+          <p
+            className={`mr-auto text-sm rounded-md px-3 py-1.5 ${
+              message.type === 'error' ? 'bg-destructive/10 text-destructive' : 'bg-green-50 text-green-800'
+            }`}
+          >
+            {message.text}
+          </p>
+        )}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? 'Saving…' : 'Save settings'}
+        </Button>
+      </div>
     </form>
+  )
+}
+
+function FormRow({
+  title,
+  description,
+  children,
+}: {
+  title: string
+  description: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="grid grid-cols-1 gap-x-8 gap-y-4 p-4 sm:p-6 md:grid-cols-3">
+      <div className="md:col-span-1">
+        <h2 className="text-base font-semibold leading-6">{title}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      </div>
+      <div className="md:col-span-2">{children}</div>
+    </div>
   )
 }
