@@ -14,6 +14,7 @@ import {
   Settings,
   ClipboardList,
   UserCog,
+  History,
   Menu,
   LogOut,
 } from 'lucide-react'
@@ -22,7 +23,7 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { logoutAction } from '@/lib/actions/auth'
 
-const navItems = [
+const baseNavItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Medicines', href: '/medicines', icon: Pill },
   { label: 'POS', href: '/pos', icon: ShoppingCart },
@@ -31,16 +32,29 @@ const navItems = [
   { label: 'Suppliers', href: '/suppliers', icon: ClipboardList },
   { label: 'Customers', href: '/customers', icon: Users },
   { label: 'Reports', href: '/reports', icon: BarChart3 },
+  { label: 'Activity', href: '/activity', icon: History, ownerOrManagerOnly: true },
   { label: 'Team', href: '/team', icon: UserCog },
   { label: 'Settings', href: '/settings', icon: Settings },
-]
+] as const
 
 interface NavSidebarProps {
   pharmacyName: string
+  canViewActivity?: boolean
 }
 
-function NavLinks({ pharmacyName, onNavigate }: { pharmacyName: string; onNavigate?: () => void }) {
+function NavLinks({
+  pharmacyName,
+  canViewActivity,
+  onNavigate,
+}: {
+  pharmacyName: string
+  canViewActivity?: boolean
+  onNavigate?: () => void
+}) {
   const pathname = usePathname()
+  const navItems = baseNavItems.filter(
+    (item) => !('ownerOrManagerOnly' in item && item.ownerOrManagerOnly) || canViewActivity,
+  )
 
   return (
     <aside className="flex h-full w-60 flex-col bg-background">
@@ -89,14 +103,14 @@ function NavLinks({ pharmacyName, onNavigate }: { pharmacyName: string; onNaviga
   )
 }
 
-export function NavSidebar({ pharmacyName }: NavSidebarProps) {
+export function NavSidebar({ pharmacyName, canViewActivity }: NavSidebarProps) {
   const [open, setOpen] = useState(false)
 
   return (
     <>
       {/* Desktop sidebar */}
       <div className="hidden lg:flex h-full w-60 flex-col border-r">
-        <NavLinks pharmacyName={pharmacyName} />
+        <NavLinks pharmacyName={pharmacyName} canViewActivity={canViewActivity} />
       </div>
 
       {/* Mobile hamburger button */}
@@ -116,7 +130,11 @@ export function NavSidebar({ pharmacyName }: NavSidebarProps) {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="p-0 w-60">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <NavLinks pharmacyName={pharmacyName} onNavigate={() => setOpen(false)} />
+          <NavLinks
+            pharmacyName={pharmacyName}
+            canViewActivity={canViewActivity}
+            onNavigate={() => setOpen(false)}
+          />
         </SheetContent>
       </Sheet>
     </>

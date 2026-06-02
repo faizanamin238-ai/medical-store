@@ -37,9 +37,11 @@ export default async function DashboardLayout({
   const role = profile?.role ?? 'owner'
   const pharmacyName = pharmacy?.name ?? 'My Pharmacy'
 
+  const canViewActivity = role === 'owner' || role === 'manager'
+
   return (
     <div className="flex h-screen overflow-hidden">
-      <NavSidebar pharmacyName={pharmacyName} />
+      <NavSidebar pharmacyName={pharmacyName} canViewActivity={canViewActivity} />
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex h-14 items-center justify-end gap-3 border-b px-4 lg:px-4 pl-14 lg:pl-4">
