@@ -2,7 +2,6 @@ import { getPharmacySettings } from '@/lib/actions/settings'
 import { listAuditLogs } from '@/lib/actions/audit'
 import { SettingsForm } from '@/components/settings/settings-form'
 import { AuditLogTable } from '@/components/settings/audit-log-table'
-import { ExportButton } from '@/components/settings/export-button'
 import { Separator } from '@/components/ui/separator'
 import { createClient } from '@/lib/supabase/server'
 
@@ -37,15 +36,6 @@ export default async function SettingsPage() {
       </div>
 
       <SettingsForm pharmacy={pharmacy} />
-
-      <Separator />
-
-      {/* Backup / Export */}
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Backup & Export</h2>
-        <p className="text-sm text-muted-foreground">Download all your pharmacy data as CSV files.</p>
-        <ExportButton />
-      </section>
 
       {isOwnerOrManager && (
         <>
