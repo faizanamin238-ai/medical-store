@@ -46,13 +46,16 @@ export function UserMenu({ fullName, role, email }: UserMenuProps) {
           <p className="text-xs font-normal text-muted-foreground">{email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => logoutAction()}
-        >
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </DropdownMenuItem>
+        <form action={logoutAction}>
+          <DropdownMenuItem
+            render={<button type="submit" />}
+            className="w-full cursor-pointer"
+            closeOnClick={false}
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </DropdownMenuItem>
+        </form>
       </DropdownMenuContent>
     </DropdownMenu>
   )
