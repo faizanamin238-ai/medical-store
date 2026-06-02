@@ -166,7 +166,7 @@ export function AuditLogDetails({ action, tableName, changes }: Props) {
       {obj && (
         <Dialog>
           <DialogTrigger
-            className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
+            className={`${buttonVariants({ variant: 'ghost', size: 'icon-sm' })} opacity-0 transition-opacity duration-100 group-hover:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100`}
             aria-label="View details"
           >
             <Eye className="h-4 w-4" />
