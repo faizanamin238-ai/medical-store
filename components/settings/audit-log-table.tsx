@@ -1,4 +1,5 @@
 import type { Database } from '@/types/database.types'
+import { AuditLogDetails } from './audit-log-details'
 
 type AuditLog = Database['public']['Tables']['audit_logs']['Row']
 
@@ -36,8 +37,12 @@ export function AuditLogTable({ logs }: { logs: AuditLog[] }) {
                 </span>
               </td>
               <td className="px-4 py-2.5 text-muted-foreground">{log.table_name}</td>
-              <td className="px-4 py-2.5 text-muted-foreground hidden sm:table-cell truncate max-w-xs">
-                {log.changes ? JSON.stringify(log.changes) : '—'}
+              <td className="px-4 py-2.5 text-muted-foreground hidden sm:table-cell max-w-xs">
+                <AuditLogDetails
+                  action={log.action}
+                  tableName={log.table_name}
+                  changes={log.changes}
+                />
               </td>
               <td className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">
                 {new Date(log.created_at).toLocaleString()}
