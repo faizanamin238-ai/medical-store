@@ -13,6 +13,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuGroup,
 } from '@/components/ui/dropdown-menu'
 
 type AuditLog = Database['public']['Tables']['audit_logs']['Row']
@@ -269,34 +270,37 @@ function FilterDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" className="w-52">
-        <DropdownMenuLabel className="flex items-center justify-between gap-2">
-          <span>{label}</span>
-          {count > 0 && (
-            <button
-              type="button"
-              onClick={onClear}
-              className="text-[10px] uppercase tracking-wide text-muted-foreground hover:text-foreground"
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="flex items-center justify-between gap-2">
+            <span>{label}</span>
+            {count > 0 && (
+              <button
+                type="button"
+                onClick={onClear}
+                className="text-[10px] uppercase tracking-wide text-muted-foreground hover:text-foreground"
+              >
+                Clear
+              </button>
+            )}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {groups.map((g) => (
+            <DropdownMenuCheckboxItem
+              key={g.label}
+              checked={selected.has(g.label)}
+              onCheckedChange={() => onToggle(g.label)}
+              closeOnClick={false}
+              className="capitalize"
             >
-              Clear
-            </button>
-          )}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {groups.map((g) => (
-          <DropdownMenuCheckboxItem
-            key={g.label}
-            checked={selected.has(g.label)}
-            onCheckedChange={() => onToggle(g.label)}
-            className="capitalize"
-          >
-            <span className="flex items-center gap-2">
-              {colorMap?.[g.rawValues[0]] && (
-                <span className={cn('h-2 w-2 rounded-full', colorMap[g.rawValues[0]].split(' ')[0])} />
-              )}
-              {g.label}
-            </span>
-          </DropdownMenuCheckboxItem>
-        ))}
+              <span className="flex items-center gap-2">
+                {colorMap?.[g.rawValues[0]] && (
+                  <span className={cn('h-2 w-2 rounded-full', colorMap[g.rawValues[0]].split(' ')[0])} />
+                )}
+                {g.label}
+              </span>
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )
