@@ -1,11 +1,19 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import type { Database } from '@/types/database.types'
-import { AuditLogDetails, RESOURCE_LABEL, resourceLabel } from './audit-log-details'
+import { AuditLogDetails, resourceLabel } from './audit-log-details'
 import { LocalTime } from '@/components/shared/local-time'
 import { cn } from '@/lib/utils'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
 
 type AuditLog = Database['public']['Tables']['audit_logs']['Row']
 
@@ -29,40 +37,83 @@ function actionLabel(action: string): string {
   return ACTION_LABEL[action] ?? action
 }
 
+type FilterGroup = {
+  label: string
+  rawValues: string[]
+}
+
+function buildGroups(
+  values: string[],
+  toLabel: (v: string) => string,
+): FilterGroup[] {
+  const byLabel = new Map<string, string[]>()
+  for (const v of values) {
+    const lbl = toLabel(v)
+    const arr = byLabel.get(lbl) ?? []
+    arr.push(v)
+    byLabel.set(lbl, arr)
+  }
+  return Array.from(byLabel.entries())
+    .map(([label, rawValues]) => ({ label, rawValues }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+}
+
 export function AuditLogTable({ logs }: { logs: AuditLog[] }) {
-  const [actionFilter, setActionFilter] = useState<string | null>(null)
-  const [resourceFilter, setResourceFilter] = useState<string | null>(null)
+  const [actionLabels, setActionLabels] = useState<Set<string>>(new Set())
+  const [resourceLabels, setResourceLabels] = useState<Set<string>>(new Set())
   const [page, setPage] = useState(0)
 
-  const actions = useMemo(
-    () => Array.from(new Set(logs.map((l) => l.action))).sort(),
+  const actionGroups = useMemo(
+    () => buildGroups(logs.map((l) => l.action), actionLabel),
     [logs],
   )
-  const resources = useMemo(
-    () => Array.from(new Set(logs.map((l) => l.table_name))).sort(),
+  const resourceGroups = useMemo(
+    () => buildGroups(logs.map((l) => l.table_name), resourceLabel),
     [logs],
   )
 
   const filtered = useMemo(() => {
+    if (actionLabels.size === 0 && resourceLabels.size === 0) return logs
+    const allowedActions = new Set<string>()
+    if (actionLabels.size > 0) {
+      for (const g of actionGroups) {
+        if (actionLabels.has(g.label)) g.rawValues.forEach((v) => allowedActions.add(v))
+      }
+    }
+    const allowedResources = new Set<string>()
+    if (resourceLabels.size > 0) {
+      for (const g of resourceGroups) {
+        if (resourceLabels.has(g.label)) g.rawValues.forEach((v) => allowedResources.add(v))
+      }
+    }
     return logs.filter((l) => {
-      if (actionFilter && l.action !== actionFilter) return false
-      if (resourceFilter && l.table_name !== resourceFilter) return false
+      if (actionLabels.size > 0 && !allowedActions.has(l.action)) return false
+      if (resourceLabels.size > 0 && !allowedResources.has(l.table_name)) return false
       return true
     })
-  }, [logs, actionFilter, resourceFilter])
+  }, [logs, actionLabels, resourceLabels, actionGroups, resourceGroups])
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage = Math.min(page, pageCount - 1)
   const pageRows = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE)
 
-  function setActionAndReset(value: string | null) {
-    setActionFilter(value)
+  function toggle(setter: React.Dispatch<React.SetStateAction<Set<string>>>, value: string) {
+    setter((prev) => {
+      const next = new Set(prev)
+      if (next.has(value)) next.delete(value)
+      else next.add(value)
+      return next
+    })
     setPage(0)
   }
-  function setResourceAndReset(value: string | null) {
-    setResourceFilter(value)
+
+  function clearAll() {
+    setActionLabels(new Set())
+    setResourceLabels(new Set())
     setPage(0)
   }
+
+  const anyActive = actionLabels.size > 0 || resourceLabels.size > 0
 
   if (logs.length === 0) {
     return <p className="text-sm text-muted-foreground py-6 text-center">No audit activity yet.</p>
@@ -70,21 +121,38 @@ export function AuditLogTable({ logs }: { logs: AuditLog[] }) {
 
   return (
     <div className="space-y-3">
-      <FilterRow
-        label="Action"
-        options={actions}
-        value={actionFilter}
-        onChange={setActionAndReset}
-        renderLabel={actionLabel}
-        colorMap={ACTION_COLORS}
-      />
-      <FilterRow
-        label="Resource"
-        options={resources}
-        value={resourceFilter}
-        onChange={setResourceAndReset}
-        renderLabel={(r) => RESOURCE_LABEL[r] ?? r.replace(/_/g, ' ')}
-      />
+      <div className="flex flex-wrap items-center gap-2">
+        <FilterDropdown
+          label="Action"
+          groups={actionGroups}
+          selected={actionLabels}
+          onToggle={(v) => toggle(setActionLabels, v)}
+          onClear={() => {
+            setActionLabels(new Set())
+            setPage(0)
+          }}
+          colorMap={ACTION_COLORS}
+        />
+        <FilterDropdown
+          label="Resource"
+          groups={resourceGroups}
+          selected={resourceLabels}
+          onToggle={(v) => toggle(setResourceLabels, v)}
+          onClear={() => {
+            setResourceLabels(new Set())
+            setPage(0)
+          }}
+        />
+        {anyActive && (
+          <button
+            type="button"
+            onClick={clearAll}
+            className="text-xs text-muted-foreground underline-offset-2 hover:underline ml-1"
+          >
+            Clear all
+          </button>
+        )}
+      </div>
 
       <div className="rounded-lg border overflow-hidden">
         <table className="w-full text-sm">
@@ -105,7 +173,7 @@ export function AuditLogTable({ logs }: { logs: AuditLog[] }) {
               </tr>
             ) : (
               pageRows.map((log) => (
-                <tr key={log.id} className="hover:bg-muted/30">
+                <tr key={log.id} className="group hover:bg-muted/30">
                   <td className="px-4 py-2.5">
                     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${ACTION_COLORS[log.action] ?? 'bg-gray-100 text-gray-800'}`}>
                       {actionLabel(log.action)}
@@ -163,68 +231,73 @@ export function AuditLogTable({ logs }: { logs: AuditLog[] }) {
   )
 }
 
-function FilterRow({
+function FilterDropdown({
   label,
-  options,
-  value,
-  onChange,
-  renderLabel,
+  groups,
+  selected,
+  onToggle,
+  onClear,
   colorMap,
 }: {
   label: string
-  options: string[]
-  value: string | null
-  onChange: (v: string | null) => void
-  renderLabel: (v: string) => string
+  groups: FilterGroup[]
+  selected: Set<string>
+  onToggle: (label: string) => void
+  onClear: () => void
   colorMap?: Record<string, string>
 }) {
-  if (options.length <= 1) return null
+  if (groups.length <= 1) return null
+
+  const count = selected.size
+  const triggerText =
+    count === 0
+      ? label
+      : count === 1
+        ? `${label}: ${[...selected][0]}`
+        : `${label} (${count})`
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="text-xs font-medium text-muted-foreground mr-1">{label}:</span>
-      <Chip active={value === null} onClick={() => onChange(null)}>
-        All
-      </Chip>
-      {options.map((opt) => (
-        <Chip
-          key={opt}
-          active={value === opt}
-          onClick={() => onChange(opt)}
-          tone={colorMap?.[opt]}
-        >
-          {renderLabel(opt)}
-        </Chip>
-      ))}
-    </div>
-  )
-}
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={cn(
+          'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium capitalize hover:bg-muted',
+          count > 0 && 'border-foreground/40 bg-muted',
+        )}
+      >
+        {triggerText}
+        <ChevronDown className="h-3 w-3 opacity-70" />
+      </DropdownMenuTrigger>
 
-function Chip({
-  children,
-  active,
-  onClick,
-  tone,
-}: {
-  children: React.ReactNode
-  active: boolean
-  onClick: () => void
-  tone?: string
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition capitalize',
-        active
-          ? 'border-foreground bg-foreground text-background'
-          : tone
-            ? `${tone} border-transparent hover:opacity-80`
-            : 'bg-background hover:bg-muted',
-      )}
-    >
-      {children}
-    </button>
+      <DropdownMenuContent align="start" className="w-52">
+        <DropdownMenuLabel className="flex items-center justify-between gap-2">
+          <span>{label}</span>
+          {count > 0 && (
+            <button
+              type="button"
+              onClick={onClear}
+              className="text-[10px] uppercase tracking-wide text-muted-foreground hover:text-foreground"
+            >
+              Clear
+            </button>
+          )}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {groups.map((g) => (
+          <DropdownMenuCheckboxItem
+            key={g.label}
+            checked={selected.has(g.label)}
+            onCheckedChange={() => onToggle(g.label)}
+            className="capitalize"
+          >
+            <span className="flex items-center gap-2">
+              {colorMap?.[g.rawValues[0]] && (
+                <span className={cn('h-2 w-2 rounded-full', colorMap[g.rawValues[0]].split(' ')[0])} />
+              )}
+              {g.label}
+            </span>
+          </DropdownMenuCheckboxItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
