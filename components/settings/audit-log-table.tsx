@@ -1,5 +1,6 @@
 import type { Database } from '@/types/database.types'
 import { AuditLogDetails } from './audit-log-details'
+import { LocalTime } from '@/components/shared/local-time'
 
 type AuditLog = Database['public']['Tables']['audit_logs']['Row']
 
@@ -45,7 +46,7 @@ export function AuditLogTable({ logs }: { logs: AuditLog[] }) {
                 />
               </td>
               <td className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">
-                {new Date(log.created_at).toLocaleString()}
+                <LocalTime iso={log.created_at} />
               </td>
             </tr>
           ))}
