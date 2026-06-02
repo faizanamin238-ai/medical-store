@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { Eye, ArrowRight } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 
-const RESOURCE_LABEL: Record<string, string> = {
+export const RESOURCE_LABEL: Record<string, string> = {
   medicines: 'medicine',
   medicine: 'medicine',
   sales: 'sale',
@@ -24,6 +24,11 @@ const RESOURCE_LABEL: Record<string, string> = {
   settings: 'settings',
   backup: 'backup',
   profiles: 'team member',
+}
+
+export function resourceLabel(tableName: string): string {
+  const raw = RESOURCE_LABEL[tableName] ?? tableName.replace(/_/g, ' ')
+  return raw.replace(/^./, (c) => c.toUpperCase())
 }
 
 const HIDDEN_FIELDS = new Set([

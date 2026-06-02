@@ -42,7 +42,7 @@ export default async function SettingsPage() {
           <Separator />
           <section className="space-y-4">
             <h2 className="text-lg font-semibold">Audit log</h2>
-            <p className="text-sm text-muted-foreground">Last 50 sensitive actions in your pharmacy.</p>
+            <p className="text-sm text-muted-foreground">Recent sensitive actions in your pharmacy. Filter by action or resource, and page through the history.</p>
             <AuditLogTable logs={logs} />
           </section>
         </>
