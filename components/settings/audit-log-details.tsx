@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
-import { Eye } from 'lucide-react'
+import { Eye, ArrowRight } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 
 const RESOURCE_LABEL: Record<string, string> = {
@@ -41,6 +40,22 @@ const CURRENCY_FIELDS = new Set(['total', 'subtotal', 'discount', 'tax', 'paid_a
 
 function shortId(v: unknown): string {
   return typeof v === 'string' && v.length >= 8 ? v.slice(0, 8) : String(v)
+}
+
+type Diff = { old: unknown; new: unknown }
+
+function isDiff(v: unknown): v is Diff {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    !Array.isArray(v) &&
+    'old' in (v as object) &&
+    'new' in (v as object)
+  )
+}
+
+function effectiveNewValue(field: string, v: unknown): string {
+  return isDiff(v) ? pretty(field, v.new) : pretty(field, v)
 }
 
 function pretty(field: string, value: unknown): string {
@@ -105,7 +120,12 @@ function summarize(
       : []
     if (fields.length === 1) {
       const k = fields[0]
-      return `Updated ${resource} — ${fieldLabel(k).toLowerCase()}: ${pretty(k, changes![k])}`
+      const v = changes![k]
+      const label = fieldLabel(k).toLowerCase()
+      if (isDiff(v)) {
+        return `Updated ${resource} — ${label}: ${pretty(k, v.old)} → ${effectiveNewValue(k, v)}`
+      }
+      return `Updated ${resource} — ${label}: ${pretty(k, v)}`
     }
     if (fields.length > 1) {
       return `Updated ${resource} — ${fields.map(fieldLabel).join(', ').toLowerCase()}`
@@ -166,7 +186,19 @@ export function AuditLogDetails({ action, tableName, changes }: Props) {
                           {fieldLabel(k)}
                         </td>
                         <td className="px-3 py-2 align-top break-words font-mono text-xs">
-                          {pretty(k, v)}
+                          {isDiff(v) ? (
+                            <span className="inline-flex items-center gap-2">
+                              <span className="rounded bg-red-50 px-1.5 py-0.5 text-red-700 line-through decoration-red-300">
+                                {pretty(k, v.old)}
+                              </span>
+                              <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                              <span className="rounded bg-green-50 px-1.5 py-0.5 text-green-700">
+                                {pretty(k, v.new)}
+                              </span>
+                            </span>
+                          ) : (
+                            pretty(k, v)
+                          )}
                         </td>
                       </tr>
                     ))}
